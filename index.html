@@ -1,8 +1,73 @@
+
 <html>
-  <head>
-   
-  </head>
-  <body>
-  Hello World!
-  </body>
+
+<!--
+
+This is an example of HTML for an Amazon Mechanical Turk HIT external
+question that uses JavaScript to perform the post-back to the
+Mechanical Turk web server.
+
+An Amazon Mechanical Turk HIT can use an "external question," question
+data served from your own web server.  An external question appears
+inside a box in the worker's web browser.  When Mechanical Turk
+renders the box, it appends an assignmentId parameter to the URL of
+the external question web page if the worker is working on the HIT.
+The web form on the page is responsible for including the assignmentId
+value in the data posted back to Mechanical Turk's web server by the
+form.
+
+This example uses JavaScript to find the assignmentId in the URL and
+include it in the form's data.  This technique allows you to use an
+external question with a web server without server-side logic to
+insert the assignment ID.  For example, you might do this to host your
+external question with Amazon S3.
+
+If no assignmentId is present, this example changes the display to
+inform the worker that the HIT is being previewed, and tells the
+worker to accept the HIT before submitting results.
+
+-->
+
+ <head>
+  <title>JavaScript External Question Example</title>
+ 
+  <script type="text/javascript" language="JavaScript"><!--
+ 
+// Given the ID of the assignmentId form field element, populate it
+// with the assignmentId parameter from the URL.  If no assignment ID
+// is present, inform the worker that the HIT is being previewed.
+function populateAssignmentID(field_id) {
+  var assignment_id_field = document.getElementById(field_id);
+  var paramstr = window.location.search.substring(1);
+  var parampairs = paramstr.split("&");
+  for (i in parampairs) {
+    var pair = parampairs[i].split("=");
+    if (pair[0] == "assignmentId") {
+      if (pair[1] == "ASSIGNMENT_ID_NOT_AVAILABLE") {
+        document.getElementById(&#39;previewnotice&#39;).innerHTML =
+          "<p><b>You are previewing this HIT.</b>  To perform this HIT, please accept it.</p>";
+      } else {
+        assignment_id_field.value = pair[1];
+      }
+      return;
+    }
+  }
+}
+
+// --></script>
+ </head>
+ <body onload="populateAssignmentID('myAssignmentId')">
+   <h1>An Example of a JavaScript External Question</h1>
+ 
+   <form action="http://www.mturk.com/mturk/externalSubmit"
+     method="POST">
+ 
+     <p>Tell me a story!</p>
+     <textarea name="story"></textarea><br />
+     <input type="submit" name="submit" value="Submit Answer" />
+ 
+     <!-- This field gets populated by JavaScript when the page loads: -->
+     <input type="hidden" name="assignmentId" id="myAssignmentId" value="" />
+   </form>
+ </body>
 </html>
